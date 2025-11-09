@@ -1,0 +1,211 @@
+ /* * =========================================
+         * CSS CORE - DEFINIÇÃO DE VARIÁVEIS (:root)
+         * =========================================
+        */
+        :root {
+            /* Cores Primárias */
+            --cor-primaria: #22c55e;        /* Um verde vibrante */
+            --cor-primaria-hover: #16a34a;  /* Verde um pouco mais escuro para hover */
+            
+            /* Cores de Fundo */
+            --cor-fundo: #ffffff;             /* Fundo principal (branco) */
+            --cor-fundo-secundaria: #f3f4f6;  /* Fundo para cards, modais, etc. */
+            
+            /* Cores de Texto */
+            --cor-texto: #111827;             /* Texto principal (preto suave) */
+            --cor-texto-secundario: #6b7280;  /* Texto para descrições, placeholders */
+            --cor-texto-contraste: #ffffff;   /* Texto para usar em cima da cor primária */
+
+            /* Cores Neutras e Bordas */
+            --cor-borda: #e5e7eb;             /* Cor para bordas e divisores */
+            
+            /* Transições */
+            --transicao-rapida: all 0.2s ease-in-out;
+        }
+
+        /* * =========================================
+         * MODO ESCURO (DARK MODE)
+         * =========================================
+        */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                /* Cores Primárias */
+                --cor-primaria: #22c55e;
+                --cor-primaria-hover: #16a34a;
+
+                /* Cores de Fundo (Invertidas) */
+                --cor-fundo: #111827;             /* Fundo principal (preto suave) */
+                --cor-fundo-secundaria: #1f2937;  /* Fundo para cards, modais (cinza escuro) */
+
+                /* Cores de Texto (Invertidas) */
+                --cor-texto: #f3f4f6;             /* Texto principal (branco suave) */
+                --cor-texto-secundario: #9ca3af;  /* Texto para descrições */
+                --cor-texto-contraste: #ffffff;   
+
+                /* Cores Neutras e Bordas */
+                --cor-borda: #374151;             /* Cor para bordas e divisores */
+            }
+        }
+
+        /* * =========================================
+         * RESET BÁSICO E ESTILOS GLOBAIS
+         * =========================================
+        */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--cor-fundo);
+            color: var(--cor-texto);
+            transition: var(--transicao-rapida);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* * =========================================
+         * LAYOUT PRINCIPAL DO APP
+         * =========================================
+        */
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            margin-left: auto;
+            margin-right: auto;
+            max-width: 512px; /* Equivalente a max-w-md */
+        }
+
+        .main-content {
+            flex-grow: 1;
+            padding: 1.5rem; /* 24px */
+        }
+
+        /* * =========================================
+         * BARRA DE NAVEGAÇÃO INFERIOR
+         * =========================================
+        */
+        .bottom-nav {
+            position: sticky;
+            bottom: 0;
+            width: 100%;
+            background-color: var(--cor-fundo-secundaria);
+            border-top: 1px solid var(--cor-borda);
+            transition: var(--transicao-rapida);
+        }
+
+        .nav-button-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            height: 4rem; /* 64px */
+        }
+
+        .nav-button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 0.5rem; /* 8px */
+            border: none;
+            background-color: transparent;
+            cursor: pointer;
+            color: var(--cor-texto-secundario);
+            transition: var(--transicao-rapida);
+        }
+        
+        .nav-icon {
+            width: 1.5rem; /* 24px */
+            height: 1.5rem; /* 24px */
+            margin-bottom: 0.25rem; /* 4px */
+            transition: var(--transicao-rapida);
+        }
+
+        .nav-text {
+            font-size: 0.75rem; /* 12px */
+            font-weight: 500;
+            transition: var(--transicao-rapida);
+        }
+
+        /* Estado ativo do botão de navegação */
+        .nav-button.active {
+            color: var(--cor-primaria);
+        }
+
+        /* * =========================================
+         * COMPONENTES (Usados no JS)
+         * =========================================
+        */
+        
+        /* Estilos para o conteúdo injetado */
+        .main-content h1 {
+            font-size: 1.875rem; /* 30px */
+            font-weight: 700;
+            color: var(--cor-texto);
+        }
+
+        .main-content p {
+            margin-top: 0.5rem; /* 8px */
+            margin-bottom: 1.5rem; /* 24px */
+            color: var(--cor-texto-secundario);
+        }
+        
+        /* Card */
+        .card {
+            border-radius: 0.5rem; /* 8px */
+            padding: 1.5rem; /* 24px */
+            background-color: var(--cor-fundo-secundaria);
+            border: 1px solid var(--cor-borda);
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-sm */
+            transition: var(--transicao-rapida);
+        }
+
+        /* Espaçamento entre cards */
+        .card + .card {
+            margin-top: 1rem; /* 16px */
+        }
+        
+        .card h3 {
+            font-size: 1.25rem; /* 20px */
+            font-weight: 600;
+            margin-bottom: 0.5rem; /* 8px */
+            color: var(--cor-texto);
+        }
+
+        .card p {
+            margin: 0; /* Resetar margem para parágrafos dentro de cards */
+            color: var(--cor-texto-secundario);
+        }
+        
+        /* Campo de Input */
+        .input-field {
+            width: 100%;
+            padding: 0.75rem; /* 12px */
+            border-radius: 0.5rem; /* 8px */
+            border: 1px solid var(--cor-borda);
+            background-color: var(--cor-fundo-secundaria);
+            color: var(--cor-texto);
+            transition: var(--transicao-rapida);
+        }
+        
+        .input-field:focus {
+            outline: 2px solid var(--cor-primaria);
+            outline-offset: 2px;
+            border-color: var(--cor-primaria);
+        }
+
+        .input-field::placeholder {
+            color: var(--cor-texto-secundario);
+        }
