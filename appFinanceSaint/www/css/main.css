@@ -1,4 +1,4 @@
- /* * =========================================
+/* * =========================================
          * CSS CORE - DEFINIÇÃO DE VARIÁVEIS (:root)
          * =========================================
         */
@@ -21,6 +21,8 @@
             
             /* Transições */
             --transicao-rapida: all 0.2s ease-in-out;
+
+            --cor-excluir : #ff0000;
         }
 
         /* * =========================================
@@ -189,23 +191,529 @@
             color: var(--cor-texto-secundario);
         }
         
-        /* Campo de Input */
-        .input-field {
+        /* * =========================================
+         * NOVOS ESTILOS DE FORMULÁRIO
+         * =========================================
+        */
+
+        /* Placeholder da Logo */
+        .logo-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 2rem; /* 32px */
+        }
+
+        .logo-placeholder {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%; /* Logo redonda, ajuste se necessário */
+            background-color: var(--cor-fundo-secundaria);
+            border: 1px dashed var(--cor-borda);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem; /* 14px */
+            font-weight: 500;
+            color: var(--cor-texto-secundario);
+        }
+        
+        /* Títulos do Formulário */
+        .form-title {
+            font-size: 1.875rem; /* 30px */
+            font-weight: 700;
+            text-align: center;
+            color: var(--cor-texto);
+            margin-bottom: 0.5rem; /* 8px */
+        }
+
+        .form-subtitle {
+            font-size: 1rem; /* 16px */
+            color: var(--cor-texto-secundario);
+            text-align: center;
+            margin-bottom: 2rem; /* 32px */
+        }
+
+        /* Estrutura do Formulário */
+        .login-form {
             width: 100%;
-            padding: 0.75rem; /* 12px */
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem; /* 20px */
+            position: relative;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem; /* 8px */
+            font-size: 0.875rem; /* 14px */
+            font-weight: 500;
+            color: var(--cor-texto);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem; /* 12px 16px */
             border-radius: 0.5rem; /* 8px */
             border: 1px solid var(--cor-borda);
             background-color: var(--cor-fundo-secundaria);
             color: var(--cor-texto);
+            font-size: 1rem; /* 16px */
             transition: var(--transicao-rapida);
         }
         
-        .input-field:focus {
-            outline: 2px solid var(--cor-primaria);
-            outline-offset: 2px;
+        .form-input:focus {
+            outline: none;
             border-color: var(--cor-primaria);
+            box-shadow: 0 0 0 3px var(--cor-primaria-hover); /* Efeito de anel no foco */
         }
 
-        .input-field::placeholder {
+        .form-input::placeholder {
             color: var(--cor-texto-secundario);
         }
+
+        /* Botões */
+        .btn {
+            display: inline-block;
+            width: 100%;
+            padding: 0.875rem 1.5rem; /* 14px 24px */
+            border: none;
+            border-radius: 0.5rem; /* 8px */
+            font-size: 1rem; /* 16px */
+            font-weight: 600;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transicao-rapida);
+        }
+
+        .btn-primary {
+            background-color: var(--cor-primaria);
+            color: var(--cor-texto-contraste);
+            box-shadow: 0 4px 6px -1px rgba(34, 197, 94, 0.3), 0 2px 4px -2px rgba(34, 197, 94, 0.2);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--cor-primaria-hover);
+        }
+
+        /* Rodapé do Formulário */
+        .form-footer {
+            margin-top: 1.5rem; /* 24px */
+            text-align: center;
+        }
+
+        .form-link {
+            color: var(--cor-primaria);
+            font-weight: 500;
+            font-size: 0.875rem; /* 14px */
+            text-decoration: none;
+            transition: var(--transicao-rapida);
+        }
+
+        .form-link:hover {
+            text-decoration: underline;
+            color: var(--cor-primaria-hover);
+        }
+
+
+
+
+        /* * =========================================
+ * LISTA DE DESPESAS (Expense List)
+ * =========================================
+*/
+
+.expense-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem; /* Espaçamento entre os cards */
+    padding-bottom: 5rem; /* Espaço para não ficar atrás da navbar */
+}
+
+.expense-card {
+    background-color: var(--cor-fundo-secundaria);
+    border: 1px solid var(--cor-borda);
+    border-radius: 0.75rem; /* 12px */
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: var(--transicao-rapida);
+    position: relative;
+    overflow: hidden;
+    margin: auto;
+    margin-top: 0.5em;
+    max-width: 350px;
+}
+
+.expense-card:hover {
+    border-color: var(--cor-primaria);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Faixa lateral colorida indicando status (opcional) */
+.expense-card::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background-color: var(--cor-borda); /* Cor padrão */
+}
+
+.expense-card.status-pago::before {
+    background-color: var(--cor-primaria);
+}
+
+.expense-card.status-pendente::before {
+    background-color: #f59e0b; /* Laranja/Amarelo para pendente */
+}
+
+/* Layout Interno do Card */
+.expense-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.expense-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--cor-texto);
+}
+
+.expense-date {
+    font-size: 0.8rem;
+    color: var(--cor-texto-secundario);
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.expense-amount-container {
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.25rem;
+}
+
+.expense-amount {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--cor-texto);
+}
+
+.expense-badge {
+    font-size: 0.7rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.badge-pago {
+    background-color: rgba(34, 197, 94, 0.15);
+    color: var(--cor-primaria);
+}
+
+.badge-pendente {
+    background-color: rgba(245, 158, 11, 0.15);
+    color: #f59e0b;
+}
+
+/* * =========================================
+ * MODAL DE DETALHES (Overlay)
+ * =========================================
+*/
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: flex-end; /* Mobile: card vem de baixo */
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: var(--transicao-rapida);
+    backdrop-filter: blur(2px);
+}
+
+.modal-overlay.open {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-content {
+    background-color: var(--cor-fundo);
+    width: 100%;
+    max-width: 512px;
+    border-top-left-radius: 1.5rem;
+    border-top-right-radius: 1.5rem;
+    padding: 2rem;
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    border-top: 1px solid var(--cor-borda);
+    max-height: 85vh;
+    overflow-y: auto;
+}
+
+.modal-overlay.open .modal-content {
+    transform: translateY(0);
+}
+
+/* Título e Cabeçalho do Modal */
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.modal-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--cor-texto);
+}
+
+.btn-close-modal {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--cor-texto-secundario);
+    cursor: pointer;
+}
+
+.btn-close-modal :hover{
+    color: --cor-excluir !important;
+}
+
+/* Linhas de Detalhe no Modal */
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--cor-borda);
+}
+
+.detail-label {
+    color: var(--cor-texto-secundario);
+    font-size: 0.9rem;
+}
+
+.detail-value {
+    color: var(--cor-texto);
+    font-weight: 500;
+}
+
+/* Botão de Ação no Modal */
+.modal-actions {
+    margin-top: 2rem;
+}
+
+
+
+/* * =========================================
+ * BOTÃO FLUTUANTE (FAB)
+ * =========================================
+*/
+.fab-container {
+    position: fixed;
+    bottom: 5rem; /* Acima da navbar */
+    right: 1.5rem;
+    z-index: 90;
+}
+
+.btn-fab {
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 50%;
+    background-color: var(--cor-primaria);
+    color: var(--cor-texto-contraste);
+    border: none;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    font-size: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.btn-fab:active {
+    transform: scale(0.9);
+}
+
+/* * =========================================
+ * FORMULÁRIO "SLIDE UP" (OVERLAY)
+ * =========================================
+*/
+.form-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--cor-fundo);
+    z-index: 2000; /* Acima de tudo */
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+}
+
+.form-overlay.active {
+    transform: translateY(0);
+}
+
+/* Cabeçalho do Form */
+.form-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--cor-borda);
+}
+
+.btn-close-text {
+    background: none;
+    border: none;
+    color: var(--cor-texto-secundario);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* Área do Valor (Destaque) */
+.amount-section {
+    padding: 2rem 1.5rem;
+    text-align: center;
+    background-color: var(--cor-fundo-secundaria);
+}
+
+.currency-label {
+    font-size: 1rem;
+    color: var(--cor-texto-secundario);
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.big-input-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: baseline;
+    color: var(--cor-primaria); /* Valor fica na cor principal */
+}
+
+.currency-symbol {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-right: 0.25rem;
+}
+
+.big-amount-input {
+    background: transparent;
+    border: none;
+    font-size: 3rem; /* Bem grande! */
+    font-weight: 700;
+    color: var(--cor-primaria);
+    width: 100%;
+    text-align: center;
+    outline: none;
+    font-family: inherit;
+    caret-color: var(--cor-texto); /* Cursor piscando na cor do texto */
+}
+
+.big-amount-input::placeholder {
+    color: rgba(34, 197, 94, 0.3);
+}
+
+/* Área de Campos (Scrollável) */
+.form-body-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.5rem;
+}
+
+/* Segmented Control (Toggle inovador) */
+.segmented-control {
+    display: flex;
+    background-color: var(--cor-fundo-secundaria);
+    padding: 0.25rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--cor-borda);
+}
+
+.segment-option {
+    flex: 1;
+    text-align: center;
+    padding: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 0.375rem;
+    color: var(--cor-texto-secundario);
+    transition: var(--transicao-rapida);
+    user-select: none;
+}
+
+/* Classe aplicada via JS quando selecionado */
+.segment-option.selected {
+    background-color: var(--cor-fundo);
+    color: var(--cor-primaria);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    font-weight: 600;
+}
+
+/* Input Condicional (Animação para aparecer) */
+.conditional-field {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.conditional-field.visible {
+    max-height: 100px; /* Altura suficiente */
+    opacity: 1;
+    margin-bottom: 1.25rem;
+}
+
+/* Grid de Categorias (Chips) */
+.category-grid {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.25rem;
+}
+
+.category-chip {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--cor-borda);
+    border-radius: 2rem;
+    font-size: 0.85rem;
+    color: var(--cor-texto-secundario);
+    cursor: pointer;
+    transition: var(--transicao-rapida);
+}
+
+.category-chip.active {
+    background-color: var(--cor-primaria);
+    color: #fff;
+    border-color: var(--cor-primaria);
+}
+
+.btn-full-save {
+    margin-top: 1rem;
+    padding: 1rem;
+    font-size: 1.1rem;
+}

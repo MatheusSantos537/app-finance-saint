@@ -1,0 +1,27 @@
+export const AppLayout = `
+    <main id="dynamic-content" class="main-content container">
+        <div id="Home" class="Pages">
+             <h1 class="text-3xl font-bold">Carregando...</h1> 
+        </div>
+        <div id="Search" class="Pages" style="display:none;">...</div>
+        <div id="Expense" class="Pages" style="display:none;">...</div>
+        <div id="Profile" class="Pages" style="display:none;">...</div>
+    </main>
+
+    <nav class="bottom-nav">
+        <div class="container nav-button-container">
+            <button class="nav-button" id="Home-btn">
+                <span class="nav-text">Home</span>
+            </button>
+            <button class="nav-button" id="Search-btn">
+                <span class="nav-text">Buscar</span>
+            </button>
+            <button class="nav-button" id="Expense-btn">
+                <span class="nav-text">Despesas</span>
+            </button>
+             <button class="nav-button" id="Profile-btn">
+                <span class="nav-text">Perfil</span>
+            </button>
+        </div>
+    </nav>
+`;
