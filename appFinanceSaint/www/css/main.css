@@ -717,3 +717,113 @@
     padding: 1rem;
     font-size: 1.1rem;
 }
+
+/* * =========================================
+ * DASHBOARD & FUNCIONALIDADES
+ * =========================================
+*/
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2 colunas */
+    gap: 1rem;
+    padding: 1rem 0;
+}
+
+.feature-card {
+    background-color: var(--cor-fundo-secundaria);
+    border: 1px solid var(--cor-borda);
+    border-radius: 1rem;
+    padding: 1.5rem 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    transition: var(--transicao-rapida);
+    text-align: center;
+}
+
+.feature-card:active {
+    transform: scale(0.96);
+    background-color: var(--cor-borda);
+}
+
+.feature-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    color: var(--cor-primaria);
+    margin-bottom: 0.5rem;
+}
+
+.feature-title {
+    font-weight: 600;
+    color: var(--cor-texto);
+    font-size: 0.9rem;
+}
+
+/* * =========================================
+ * SELETOR DE MÊS (Month Picker)
+ * =========================================
+*/
+.month-picker-container {
+    padding: 1rem;
+}
+
+.year-selector {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.year-display {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--cor-texto);
+}
+
+.btn-year-nav {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--cor-primaria);
+    cursor: pointer;
+    padding: 0.5rem;
+}
+
+.months-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 meses por linha */
+    gap: 0.75rem;
+}
+
+.month-btn {
+    padding: 0.75rem;
+    border: 1px solid var(--cor-borda);
+    border-radius: 0.5rem;
+    background-color: var(--cor-fundo-secundaria);
+    color: var(--cor-texto);
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transicao-rapida);
+}
+
+.month-btn:hover {
+    border-color: var(--cor-primaria);
+}
+
+.month-btn.active { /* Mês atual ou selecionado */
+    background-color: var(--cor-primaria);
+    color: #fff;
+    border-color: var(--cor-primaria);
+}
+
+/* Header com botão voltar */
+.page-header-nav {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}

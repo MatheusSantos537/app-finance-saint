@@ -2,7 +2,12 @@
 import { authFetch, API_URL } from "./config.js";
 // Configuração
 
+let user = {};
 
+export function getCurrentUser() {
+    return user;
+}
+ 
 /**
  * Função para fazer Login e salvar os tokens
  */
@@ -25,6 +30,8 @@ export async function login(email, senha) {
         localStorage.setItem('accessToken', data.accessToken);
         localStorage.setItem('refreshToken', data.refreshToken);
         localStorage.setItem('userData', JSON.stringify(data.userData));
+        user = {...data};
+        console.log(data,`USER`)
 
         return data;
 
@@ -70,7 +77,8 @@ export async function refreshAccessToken() {
  */
 export function logout() {
     localStorage.clear();
-    window.location.href = '/login.html'; // Redireciona para login
+    user = {};
+    window.location.href = window.location.href; // Redireciona para login
 }
  
 

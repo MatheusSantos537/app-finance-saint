@@ -1,5 +1,6 @@
 import { HomePage } from "./homePage.js";
 import { ExpensePage } from "./ExpensePage.js";
+import { ProfilePage } from "./ProfilePage.js";
 
 export class Pages {
     constructor() {
@@ -11,7 +12,7 @@ export class Pages {
             'Home': new HomePage(),
             'Expense': new ExpensePage(), // new ExpensePage(),
             'Search': null,
-            'Profile': null
+            'Profile': new ProfilePage()
         };
     }
 

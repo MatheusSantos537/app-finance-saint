@@ -1,6 +1,6 @@
 import { authFetch, API_URL } from "./config.js";
 
-const BASE_URL = `${API_URL}/expenses`;
+const BASE_URL = `/expenses`;
 
  
  

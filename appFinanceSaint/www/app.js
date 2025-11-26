@@ -5,6 +5,8 @@ import { login } from "./js/api/Login.js"; // Precisa exportar a função 'login
 
 const appRoot = document.getElementById('app-root');
 
+
+
 // 1. Função para Renderizar Login
 function renderLogin() {
     appRoot.innerHTML = LoginView;
@@ -17,7 +19,7 @@ function renderLogin() {
 
         try {
             // Chama sua função de login existente
-            //await login(email, password); 
+            await login(email, password); 
             // Se der sucesso, renderiza o App
             renderApp();
         } catch (error) {
