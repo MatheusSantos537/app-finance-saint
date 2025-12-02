@@ -63,28 +63,32 @@ export async function login(email, senha) {
  * Função interna para tentar renovar o token
  */
 export async function refreshAccessToken() {
-    const refreshToken = await Preferences.get('refreshToken');
 
-    if (!refreshToken|| !refreshToken.value) return null;
+    let refreshToken = await Preferences.get({key:`refreshToken`});
 
     try {
         const response = await fetch(`${API_URL}/users/refresh-token`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ refreshToken })
+            body: JSON.stringify({ refreshToken: refreshToken.value })
         });
 
         if (response.ok) {
             const data = await response.json();
             console.log('Token renovado com sucesso!');
+            await  Preferences.set({key:'refreshToken',value: data.accessToken});
             await  Preferences.set({key:'accessToken',value: data.accessToken});
             return data.accessToken;
         } else {
+            console.log(`falha ao tentar renovar token`);
+            const resp = await response.json();
+            console.log(`resp`,resp);
             // Se o refresh falhar (  passou de 30 dias), faz logout
             logout();
             return null;
         }
     } catch (error) {
+        console.error(`REFRESH TOKEN`,error)
         logout();
         return null;
     }
@@ -95,10 +99,42 @@ export async function refreshAccessToken() {
  */
 export async function logout() {
     //localStorage.clear();
-    
-       await Preferences.remove({ key: 'refreshToken' });
+        let refreshToken = await Preferences.get({key:`refreshToken`});
+        if(!refreshToken)return console.log(`token refresh null`)
+
+    await Preferences.remove({ key: 'refreshToken' });
        await Preferences.remove({ key: 'accessToken' });
        await Preferences.remove({ key: 'userData' });
+        user = {};
+
+        try {
+        const response = await fetch(`${API_URL}/users/logout`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ refreshToken:refreshToken.value })
+        });
+
+        if (response.ok) {
+            const data = await response.text();
+            console.log('logout!',data);
+            
+            return true
+        } else {
+            console.log(`falha ao tentar logout token`);
+            const resp = await response.json();
+            console.log(`resp`,resp);
+           
+            return false;
+        }
+
+        
+      
+
+    } catch (error) {
+        console.error(`logout TOKEN`,error)
+        
+        return null;
+    }
 
     
     user = {};

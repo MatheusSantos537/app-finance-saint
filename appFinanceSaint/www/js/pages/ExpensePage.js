@@ -308,7 +308,7 @@ constructor() {
                 return false;
             }
 
-               alert("Despesa salva (simulação)!");
+               
                document.getElementById('expense-form-overlay').classList.remove('active');
 
         } catch (error) {

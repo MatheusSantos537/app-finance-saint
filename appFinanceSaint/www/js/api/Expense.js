@@ -2,7 +2,7 @@ import { authFetch, API_URL } from "./config.js";
 
 const BASE_URL = `/expenses`;
 
- 
+let last_get ;
  
 export class Expense{
     /**
@@ -41,6 +41,7 @@ export class Expense{
         }
         let data = await response.json();
         console.log(data);
+        
         return data;
     }
 }
