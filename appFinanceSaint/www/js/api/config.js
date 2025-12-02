@@ -1,6 +1,7 @@
  
+import { Preferences } from "@capacitor/preferences";
 import { refreshAccessToken } from "./Login.js";
-
+ 
 export const API_URL = 'http://localhost:3000/api';
 /**
  * authFetch 
@@ -9,7 +10,7 @@ export const API_URL = 'http://localhost:3000/api';
 
 export async function authFetch(endpoint, options = {}) {
     // 1. Configura os Headers padrão
-    let token = localStorage.getItem('accessToken');
+    let token = await Preferences.get('accessToken');
     
     
     options.headers = options.headers || {};
@@ -18,8 +19,8 @@ export async function authFetch(endpoint, options = {}) {
         options.headers['Content-Type'] = 'application/json';
     }
 
-    if (token) {
-        options.headers['Authorization'] = `Bearer ${token}`;
+    if (token && token.value) {
+        options.headers['Authorization'] = `Bearer ${token.value}`;
     }
 
     const url = `${API_URL}${endpoint}`;

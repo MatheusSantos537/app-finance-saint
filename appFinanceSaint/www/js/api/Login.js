@@ -27,10 +27,11 @@ export async function login(email, senha) {
         }
 
         //  SALVAR NO LOCAL STORAGE
-        
+        /*
         localStorage.setItem('accessToken', data.accessToken);
         localStorage.setItem('refreshToken', data.refreshToken);
-        localStorage.setItem('userData', JSON.stringify(data.userData));
+        localStorage.setItem('userData', JSON.stringify(data.userData));*/
+        
         Preferences.set({
             key:'accessToken',
             value:data.accessToken,
@@ -43,6 +44,9 @@ export async function login(email, senha) {
             key:'userData',
             value:JSON.stringify(data.userData),
         });
+
+        const saved = await Preferences.get({key:`userData`});
+        console.log(`SAVED AT DEVICE: `,JSON.parse( saved.value))
 
         user = {...data};
         console.log(data,`USER`)
@@ -59,9 +63,9 @@ export async function login(email, senha) {
  * Função interna para tentar renovar o token
  */
 export async function refreshAccessToken() {
-    const refreshToken = localStorage.getItem('refreshToken');
+    const refreshToken = await Preferences.get('refreshToken');
 
-    if (!refreshToken) return null;
+    if (!refreshToken|| !refreshToken.value) return null;
 
     try {
         const response = await fetch(`${API_URL}/users/refresh-token`, {
@@ -73,7 +77,7 @@ export async function refreshAccessToken() {
         if (response.ok) {
             const data = await response.json();
             console.log('Token renovado com sucesso!');
-            localStorage.setItem('accessToken', data.accessToken);
+            await  Preferences.set({key:'accessToken',value: data.accessToken});
             return data.accessToken;
         } else {
             // Se o refresh falhar (  passou de 30 dias), faz logout
@@ -89,15 +93,25 @@ export async function refreshAccessToken() {
 /**
  * Função de Logout
  */
-export function logout() {
-    localStorage.clear();
+export async function logout() {
+    //localStorage.clear();
+    
+       await Preferences.remove({ key: 'refreshToken' });
+       await Preferences.remove({ key: 'accessToken' });
+       await Preferences.remove({ key: 'userData' });
+
+    
     user = {};
     window.location.href = window.location.href; // Redireciona para login
 }
  
 
  
-document.addEventListener(`DOMContentLoaded`, async()=>{
-//let dt = await login({email:"teste@gmail.com",password:"56498&$&#@ac"});
-//console.dir(dt);
-});     
+export async function getLocalToken(){
+    const token = await Preferences.get({key:`accessToken`});
+    if(!token.value || !token ){
+        return false
+    }
+ 
+    return true
+}

@@ -1,5 +1,6 @@
+ 
 {
   "appId": "com.financesaint",
   "appName": "Finance Saint",
-  "webDir": "www"
+  "webDir": "dist"
 }

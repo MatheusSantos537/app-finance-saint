@@ -1,7 +1,9 @@
 import { LoginView } from "./js/views/LoginView.js";
 import { AppLayout } from "./js/views/AppLayout.js";
 import { Pages } from "./js/pages/Pages.js";
-import { login } from "./js/api/Login.js"; // Precisa exportar a função 'login' no seu arquivo
+import { login, getLocalToken } from "./js/api/Login.js"; // Precisa exportar a função 'login' no seu arquivo
+import { defineCustomElements } from '@ionic/pwa-elements/loader';
+defineCustomElements(window);
 
 const appRoot = document.getElementById('app-root');
 
@@ -42,8 +44,8 @@ function renderApp() {
 }
 
 // 3. Inicialização
-function init() {
-    const token = localStorage.getItem('accessToken');
+async function init() {
+    const token = await getLocalToken();
     
     if (token) {
         // Se tem token, verifica validade (opcional) e carrega App

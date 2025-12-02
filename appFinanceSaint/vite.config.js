@@ -1,9 +1,17 @@
 import { defineConfig } from 'vite';
+import path from 'path';
 
 export default defineConfig({
-  root: './www', // Indica que seus arquivos estão na pasta www
+  // Resolve o caminho absoluto para a pasta www
+  root: path.resolve(__dirname, 'www'), 
   build: {
-    outDir: '../dist', // Onde ele vai gerar o site final
+    // Define a saída para a pasta dist (um nível acima de www)
+    outDir: path.resolve(__dirname, 'dist'),
     emptyOutDir: true,
+  },
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, 'www/js'),
+    },
   },
 });

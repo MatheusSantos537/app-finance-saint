@@ -4,7 +4,7 @@ export const LoginView = `
             <h1 class="form-title">Bem-vindo(a)!</h1>
             <div class="form-group">
                 <label for="email">Email</label>
-                <input type="email" id="email" class="form-input" required>
+                <input type="text" id="email" class="form-input" required>
             </div>
             <div class="form-group">
                 <label for="password">Senha</label>
