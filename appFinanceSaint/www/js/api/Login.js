@@ -1,4 +1,5 @@
- 
+import { Preferences } from '@capacitor/preferences';
+
 import { authFetch, API_URL } from "./config.js";
 // Configuração
 
@@ -30,6 +31,19 @@ export async function login(email, senha) {
         localStorage.setItem('accessToken', data.accessToken);
         localStorage.setItem('refreshToken', data.refreshToken);
         localStorage.setItem('userData', JSON.stringify(data.userData));
+        Preferences.set({
+            key:'accessToken',
+            value:data.accessToken,
+        });
+        Preferences.set({
+            key:'refreshToken',
+            value:data.refreshToken,
+        });
+        Preferences.set({
+            key:'userData',
+            value:JSON.stringify(data.userData),
+        });
+
         user = {...data};
         console.log(data,`USER`)
 
