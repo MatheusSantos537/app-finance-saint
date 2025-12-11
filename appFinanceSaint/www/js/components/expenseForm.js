@@ -34,11 +34,10 @@ export const getFormOverlayHTML = () => `
             <div class="segmented-control">
                 <div class="segment-option selected" data-value="unica" id="opt-vista">À vista</div>
                 <div class="segment-option" data-value="parcelada" id="opt-parcelado">Parcelado</div>
-                <div class="segment-option" data-value="mensal" id="opt-mensal">Mensal</div>
-                <div class="segment-option" data-value="anual" id="opt-anual">Anual</div>
+              
             </div>
             
-            <div id="installments-container" class="conditional-field">
+            <div id="installments-container" class="conditional-field" >
                 <label class="form-label">Número de Parcelas</label>
                 <input type="number" id="input-installments" class="form-input" placeholder="Ex: 12" min="2" max="60">
             </div>

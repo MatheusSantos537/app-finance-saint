@@ -5,6 +5,8 @@ import { Expense } from "../api/Expense.js";
 import { getMonthPickerHTML } from "../components/datePicker.js";
 // import { authFetch } from "../api/config.js"; 
 
+
+
 export class ExpensePage {
 constructor() {
         this.container = document.getElementById('Expense');
@@ -23,6 +25,8 @@ constructor() {
         };
     }
 
+  
+
   async render() {
         // Limpa container
         this.container.innerHTML = '';
@@ -32,6 +36,7 @@ constructor() {
             this.renderDashboard();
         } else {
             this.renderListView();
+             
         }
 
         // 2. Componentes Globais (FAB e Modal de Cadastro estão sempre no DOM, mas ocultos/sobrepostos)
@@ -127,7 +132,7 @@ constructor() {
  */
     async loadExpensesForPeriod(mes, ano) {
         console.log(`Buscando despesas para ${mes}/${ano}`);
-        const user = getCurrentUser();
+        const user = await getCurrentUser();
         /** @type {String} */
         const familia_id = user?.userData?.cod_familia_desp;
         if(!familia_id)return alert(`Familia de despesa nao definida.`);
@@ -144,7 +149,7 @@ constructor() {
             ]; */
             renderExpenseList(response, 'expense-page-list');
         } catch (error) {
-            console.Error(`Erro loadExpensesForPeriod`,error)
+            console.error(`Erro loadExpensesForPeriod`,error)
         }
        
         
@@ -190,38 +195,62 @@ constructor() {
         });
     }
 
-    // --- LÓGICA DO FORMULÁRIO DINÂMICO ---
-    setupFormEvents() {
+ setupFormEvents() {
+        // 1. Garante que o HTML existe antes de buscar
         const overlay = document.getElementById('expense-form-overlay');
+        const form = document.getElementById('new-expense-form');
+        
+        if (!overlay || !form) return; // Proteção contra erros
+
+        // 2. Seleciona os elementos AGORA (sem clonar depois)
         const btnOpen = document.getElementById('btn-open-form');
-        if(!btnOpen) return alert(`botao de abrir formulario com erro`);
         const btnClose = document.getElementById('btn-close-form');
         const inputAmount = document.getElementById('input-amount');
         const inputDate = document.getElementById('input-date');
-        const inputDuedate = document.getElementById('input-Duedate');
+        
+        // --- EVENTOS DE ABRIR/FECHAR ---
+        if (btnOpen) {
+            // Remove listener antigo (se houver) recriando o elemento, 
+            // ou apenas garante que não duplique se a lógica de render estiver correta.
+            // Como seu render() limpa tudo, apenas adicionar o listener é seguro.
+            btnOpen.onclick = () => {
+                overlay.classList.add('active');
+                
+                // DATA DE HOJE (Correção solicitada anteriormente)
+                const hoje = new Date().toISOString().split('T')[0];
+                if(inputDate && !inputDate.value) inputDate.value = hoje;
+                const inputDue = document.getElementById('input-Duedate');
+                if(inputDue && !inputDue.value) inputDue.value = hoje;
 
-        // ABRIR FORM
-        btnOpen.addEventListener('click', () => {
-            overlay.classList.add('active');
-            inputDate.valueAsDate = new Date(); // Seta hoje
-            setTimeout(() => inputAmount.focus(), 350); // Foco automático
-        });
+                setTimeout(() => inputAmount && inputAmount.focus(), 350);
+            };
+        }
 
-        // FECHAR FORM
-        btnClose.addEventListener('click', () => {
-            overlay.classList.remove('active');
-        });
+        if (btnClose) {
+            btnClose.onclick = (e) => {
+                e.preventDefault();
+                overlay.classList.remove('active');
+            };
+        }
 
-        // MÁSCARA DE MOEDA
-        inputAmount.addEventListener('input', (e) => {
-            let value = e.target.value.replace(/\D/g, "");
-            if (value === "") return e.target.value = "";
-            value = (parseInt(value) / 100).toFixed(2) + "";
-            e.target.value = value.replace(".", ",");
-        });
+        // --- MÁSCARA DE MOEDA ---
+        if (inputAmount) {
+            inputAmount.oninput = (e) => {
+                let value = e.target.value.replace(/\D/g, "");
+                if (value === "") return e.target.value = "";
+                value = (parseInt(value) / 100).toFixed(2) + "";
+                e.target.value = value.replace(".", ",");
+            };
+        }
 
-        // TOGGLE: 
-       const inputInstallments = document.getElementById('input-installments');
+        // --- SUBMIT DO FORMULÁRIO (SEM CLONE!) ---
+        form.onsubmit = async (e) => {
+            await this.handleFormSubmit(e);
+        };
+
+        // --- TOGGLE TIPO (PARCELADO / ÚNICO) ---
+        // Ajustei para procurar tanto .segment-option quanto chips, por segurança
+          const inputInstallments = document.getElementById('input-installments');
         const installmentsContainer = document.getElementById('installments-container');
         const opts = document.querySelectorAll('.segment-option');
 
@@ -239,21 +268,9 @@ constructor() {
                 }
             }
         });
-        const form = document.getElementById('new-expense-form');
-        const newForm = form.cloneNode(true);
-        form.parentNode.replaceChild(newForm, form);
-        
-        newForm.addEventListener('submit', async (e) => await this.handleFormSubmit(e));
-        const newInputAmount = document.getElementById('input-amount');
-        newInputAmount.addEventListener('input', (e) => {
-             let value = e.target.value.replace(/\D/g, "");
-            if (value === "") return e.target.value = "";
-            value = (parseInt(value) / 100).toFixed(2) + "";
-            e.target.value = value.replace(".", ",");
-        });
 
-        // CHIPS DE CATEGORIA
-        const chips = document.querySelectorAll('.category-chip');
+        // --- CHIPS DE CATEGORIA ---
+       const chips = document.querySelectorAll('.category-chip');
         chips.forEach(chip => {
             chip.addEventListener('click', (e) => {
                 chips.forEach(c => c.classList.remove('active'));
@@ -262,11 +279,6 @@ constructor() {
                 document.getElementById('input-category').value = this.formState.categoria;
             });
         });
-        
-        // SUBMIT DO FORMULÁRIO
-        
-
-        
     }
 
     async handleFormSubmit(e) {
@@ -282,7 +294,8 @@ constructor() {
             alert("Insira um valor válido.");
             return;
         }
-        let user  = getCurrentUser();
+        let user  = await getCurrentUser();
+        console.log(user,`handleFormsubmit`);
         
         const novaDespesa = {
             familia_id: user?.userData?.cod_familia_desp,

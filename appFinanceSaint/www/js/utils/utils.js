@@ -10,3 +10,13 @@ export const formatDate = (isoString) => {
     const date = new Date(isoString);
     return new Intl.DateTimeFormat('pt-BR').format(date);
 };
+
+export const secureSum =  (valor1, valor2)  => {
+ /**para 2 casas 0.00 */
+  const fator = 100; 
+
+  // Multiplica, arredonda para garantir que virou inteiro, soma e divide
+  const soma = (Math.round(valor1 * fator) + Math.round(valor2 * fator)) / fator;
+
+  return soma;
+}

@@ -100,6 +100,8 @@ window.openExpenseModal = (expenseString) => {
     `;
 
     const actionBtn = document.getElementById('modal-action-btn');
+    /**Temporariamente escondido */
+    actionBtn.style.display = `none`
     if(expense.status === 'pendente') {
         actionBtn.innerText = 'Marcar como Pago';
         actionBtn.onclick = () => { alert(`Lógica para pagar despesa ID: ${expense.id}`); };

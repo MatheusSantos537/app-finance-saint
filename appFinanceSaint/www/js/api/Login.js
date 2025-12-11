@@ -3,10 +3,13 @@ import { Preferences } from '@capacitor/preferences';
 import { authFetch, API_URL } from "./config.js";
 // Configuração
 
-let user = {};
+let userDt = async () => await Preferences.get({key:`userData`});
 
-export function getCurrentUser() {
-    return user;
+export async function getCurrentUser() {
+     let raw = await userDt();
+     console.log(raw);
+     const parsed = JSON.parse(raw.value)
+     return { ...parsed}
 }
  
 /**
@@ -42,13 +45,13 @@ export async function login(email, senha) {
         });
         Preferences.set({
             key:'userData',
-            value:JSON.stringify(data.userData),
+            value:JSON.stringify(data),
         });
 
         const saved = await Preferences.get({key:`userData`});
         console.log(`SAVED AT DEVICE: `,JSON.parse( saved.value))
 
-        user = {...data};
+        
         console.log(data,`USER`)
 
         return data;
@@ -62,9 +65,17 @@ export async function login(email, senha) {
 /**
  * Função interna para tentar renovar o token
  */
+// Login.js - Correção
 export async function refreshAccessToken() {
 
     let refreshToken = await Preferences.get({key:`refreshToken`});
+
+    // Adicionei uma validação extra aqui
+    if (!refreshToken || !refreshToken.value) {
+        console.log("Sem refresh token salvo");
+        logout();
+        return null;
+    }
 
     try {
         const response = await fetch(`${API_URL}/users/refresh-token`, {
@@ -76,24 +87,27 @@ export async function refreshAccessToken() {
         if (response.ok) {
             const data = await response.json();
             console.log('Token renovado com sucesso!');
-            await  Preferences.set({key:'refreshToken',value: data.accessToken});
-            await  Preferences.set({key:'accessToken',value: data.accessToken});
+
+            // CORREÇÃO: Remova a linha que atualiza o refreshToken, 
+            // pois seu backend mantém o mesmo refreshToken até ele expirar (30 dias).
+            
+            // Apenas atualize o Access Token
+            await Preferences.set({key:'accessToken', value: data.accessToken});
+            
             return data.accessToken;
         } else {
-            console.log(`falha ao tentar renovar token`);
+            console.log(`falha ao tentar renovar token: status ${response.status}`);
             const resp = await response.json();
-            console.log(`resp`,resp);
-            // Se o refresh falhar (  passou de 30 dias), faz logout
+            console.log(`resp`, resp);
             logout();
             return null;
         }
     } catch (error) {
-        console.error(`REFRESH TOKEN`,error)
+        console.error(`REFRESH TOKEN ERROR`, error);
         logout();
         return null;
     }
 }
-
 /**
  * Função de Logout
  */
@@ -105,7 +119,7 @@ export async function logout() {
     await Preferences.remove({ key: 'refreshToken' });
        await Preferences.remove({ key: 'accessToken' });
        await Preferences.remove({ key: 'userData' });
-        user = {};
+        
 
         try {
         const response = await fetch(`${API_URL}/users/logout`, {
@@ -145,9 +159,10 @@ export async function logout() {
  
 export async function getLocalToken(){
     const token = await Preferences.get({key:`accessToken`});
-    if(!token.value || !token ){
+    if(!token.value || token.value  ==`` ){
+        console.log(token.value)
         return false
     }
- 
+    console.log(`token valido`,token)
     return true
 }

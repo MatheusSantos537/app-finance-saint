@@ -10,7 +10,7 @@ export const API_URL = 'http://localhost:3000/api';
 
 export async function authFetch(endpoint, options = {}) {
     // 1. Configura os Headers padrão
-    let token = await Preferences.get('accessToken');
+    let token = await Preferences.get({key:'accessToken'});
     
     
     options.headers = options.headers || {};
