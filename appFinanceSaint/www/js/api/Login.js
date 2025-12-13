@@ -131,6 +131,7 @@ export async function logout() {
         if (response.ok) {
             const data = await response.text();
             console.log('logout!',data);
+            window.location.reload();
             
             return true
         } else {

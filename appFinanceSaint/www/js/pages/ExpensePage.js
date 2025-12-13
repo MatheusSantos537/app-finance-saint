@@ -6,14 +6,13 @@ import { getMonthPickerHTML } from "../components/datePicker.js";
 // import { authFetch } from "../api/config.js"; 
 
 
-
 export class ExpensePage {
-constructor() {
+    constructor() {
         this.container = document.getElementById('Expense');
         
         // Estado da Página
         this.state = {
-            view: 'dashboard', // 'dashboard' | 'list'
+            view: 'dashboard', // 'dashboard' | 'list' | 'reports'
             selectedYear: new Date().getFullYear(),
             selectedMonth: null
         };
@@ -30,10 +29,13 @@ constructor() {
         ];
         this.monthsData = this.months;
         this.currentYear = new Date().getFullYear();
-        this.observer = null;
-    }
 
-  
+        // Variável de estado para controlar qual mês já foi carregado
+        this.currentLoadedMonth = null;
+
+        // Timeout para debounce de carregamento (caso queira usar)
+        this.searchTimeout = null;
+    }
 
     async render() {
         this.container.innerHTML = '';
@@ -63,6 +65,7 @@ constructor() {
             this.setupDatePickerEvents();
         }
     }
+
     renderDashboard() {
         // Removi a opacity:0.5 do card de relatórios e adicionei ID
         const dashboardHTML = `
@@ -122,51 +125,8 @@ constructor() {
     }
 
 
-    initSliderObserver() {
-        const slider = document.getElementById('monthSlider');
-        if (!slider) return;
+    // REMOVIDO: initSliderObserver original (IntersectionObserver) — substituído por cliques simples
 
-        // Configuração do IntersectionObserver
-        const options = {
-            root: slider,
-            threshold: 0.6 // Dispara quando 60% do mês estiver visível
-        };
-
-        this.observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    // Remove classe active de todos e adiciona no atual
-                    document.querySelectorAll('.month-slide').forEach(el => el.classList.remove('active'));
-                    entry.target.classList.add('active');
-
-                    // EXTRAI OS DADOS DO ELEMENTO
-                    const mes = parseInt(entry.target.dataset.monthIndex);
-                    const ano = parseInt(entry.target.dataset.year);
-
-                    console.log(`Mês selecionado: ${mes}/${ano}`);
-                    
-                    // CHAMADA DA API/CACHE (Sua nova função)
-                    this.loadDashboardData(mes, ano); 
-                }
-            });
-        }, options);
-
-        // Observa cada slide
-        document.querySelectorAll('.month-slide').forEach(slide => {
-            this.observer.observe(slide);
-        });
-
-        // Scroll automático para o mês atual na inicialização
-        this.scrollToCurrentMonth();
-    }
-
-    // async scrollToCurrentMonth() {
-    //     const currentMonthIndex = new Date().getMonth(); // 0-11
-    //     const slides = document.querySelectorAll('.month-slide');
-    //     if (slides[currentMonthIndex]) {
-    //         slides[currentMonthIndex].scrollIntoView({ block: 'nearest', inline: 'center' });
-    //     }
-    // }
 
     async loadDashboardData(mes, ano) {
         // Exibe loading se necessário...
@@ -186,8 +146,8 @@ constructor() {
     }
 
     updateUI(data) {
-        // Aqui você atualiza os elementos HTML do dashboard
-        // Exemplo:
+        
+        
         // document.getElementById('total-gastos').innerText = `R$ ${data.monthlyCost}`;
         // document.getElementById('divida-futura').innerText = `R$ ${data.analytics.futureDebt}`;
         
@@ -234,17 +194,25 @@ constructor() {
     }
 
     // --- VIEW 3: RELATÓRIOS (SLIDER) ---
-renderReportsView() {
-        const reportsHTML = `
+    renderReportsView() {
+   const reportsHTML = `
             <div class="fade-in" style="display:flex; flex-direction:column; height:100%; padding-bottom:6rem;">
-                <div class="p-4 flex items-center gap-4">
-                    <button id="btn-back-reports" style="background:none; border:none; color:var(--cor-texto);">
-                         <svg width="24" height="24" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/></svg>
-                    </button>
-                    <h2 class="text-xl font-bold">Relatórios Anuais</h2>
+                <div class="p-4 flex items-center gap-4 justify-between">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <button id="btn-back-reports" style="background:none; border:none; color:var(--cor-texto);">
+                             <svg width="24" height="24" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/></svg>
+                        </button>
+                        <h2 class="text-xl font-bold">Relatórios</h2>
+                    </div>
+
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <button id="year-prev" title="Ano anterior" style="background:none; border:none; font-size:1.2rem;">◀</button>
+                        <select id="year-select" style="padding:6px 8px; border-radius:6px;"></select>
+                        <button id="year-next" title="Próximo ano" style="background:none; border:none; font-size:1.2rem;">▶</button>
+                    </div>
                 </div>
 
-                <div class="month-slider-container">
+                <div class="month-slider-container" style="padding: 0 12px;">
                     <div class="month-slider" id="monthSlider"></div>
                 </div>
 
@@ -255,24 +223,47 @@ renderReportsView() {
                 </div>
             </div>
         `;
-
-        const contentDiv = document.createElement('div');
+     const contentDiv = document.createElement('div');
         contentDiv.innerHTML = reportsHTML;
         this.container.insertBefore(contentDiv, this.container.firstChild);
 
-        // 1. Cria os meses
+        // Popula o select de anos com um intervalo útil
+        this.populateYearSelect();
+
+        // Popula os meses e ajusta mês/ano inicial a partir do estado
         this.populateSlider();
 
-        // 2. Rola IMEDIATAMENTE para o mês atual (sem animação suave para não disparar gatilhos no caminho)
-        this.scrollToCurrentMonth();
+        // Define mês ativo inicial:
+        // Se não há mês/ano carregado, escolhe mês corrente se o ano selecionado for o corrente,
+        // senão escolhe Janeiro (1).
+        if (!this.currentLoadedYear || this.currentLoadedYear !== this.state.selectedYear) {
+            if (this.state.selectedYear === new Date().getFullYear()) {
+                this.currentLoadedMonth = new Date().getMonth() + 1;
+            } else {
+                this.currentLoadedMonth = 1; // Janeiro por padrão para anos diferentes do atual
+            }
+            this.currentLoadedYear = this.state.selectedYear;
+        }
 
-        // 3. Só liga o observador depois de 500ms (tempo suficiente para o scroll assentar)
-        setTimeout(() => {
-            this.initSliderObserver();
-        }, 500);
+        // Centraliza e carrega o mês selecionado
+        this.scrollToSelectedMonth();
 
+        // Eventos dos controles de ano
+        document.getElementById('year-prev').addEventListener('click', () => {
+            this.state.selectedYear--;
+            this.onYearChanged();
+        });
+        document.getElementById('year-next').addEventListener('click', () => {
+            this.state.selectedYear++;
+            this.onYearChanged();
+        });
+        document.getElementById('year-select').addEventListener('change', (e) => {
+            this.state.selectedYear = parseInt(e.target.value, 10);
+            this.onYearChanged();
+        });
+
+        // Botão voltar — apenas troca a view
         document.getElementById('btn-back-reports').addEventListener('click', () => {
-            if (this.observer) this.observer.disconnect();
             this.state.view = 'dashboard';
             this.render();
         });
@@ -287,20 +278,59 @@ renderReportsView() {
         const slides = slider.querySelectorAll('.month-slide');
         
         if (slides[currentMonthIndex]) {
-            // Usa 'auto' para ser instantâneo, não 'smooth'
+            // Usa 'auto' para ser instantâneo, não 'smooth' — evita disparos indesejados
             slides[currentMonthIndex].scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'auto' });
             
-            // Marca visualmente como ativo e carrega dados iniciais manualmente
+            // Marca visualmente como ativo
+            slides.forEach(s => s.classList.remove('active'));
             slides[currentMonthIndex].classList.add('active');
             
-            // Define o mês carregado para evitar reload se o observer ligar em seguida
+            // Define o mês carregado e carrega relatório inicial
             this.currentLoadedMonth = currentMonthIndex + 1;
             this.loadReportData(this.currentLoadedMonth, this.state.selectedYear);
         }
     }
-populateSlider() {
+
+     scrollToSelectedMonth() {
         const slider = document.getElementById('monthSlider');
         if (!slider) return;
+        const slides = slider.querySelectorAll('.month-slide');
+        const index = (this.currentLoadedMonth ? this.currentLoadedMonth - 1 : 0);
+
+        if (slides[index]) {
+            // centraliza e marca ativo
+            slides[index].scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'auto' });
+            slides.forEach(s => s.classList.remove('active'));
+            slides[index].classList.add('active');
+
+            // carrega os dados para o mês/ano atual do estado
+            const mes = Number(slides[index].dataset.monthIndex);
+            const ano = Number(this.state.selectedYear);
+
+            // evita recarga se já estivermos com mesmo mês+ano carregado
+            if (this.currentLoadedMonth === mes && this.currentLoadedYear === ano) {
+                // já carregado: garante que visualize o conteúdo sem refetch
+                return;
+            }
+
+            // atualiza estado carregado e busca dados
+            this.currentLoadedMonth = mes;
+            this.currentLoadedYear = ano;
+
+            // Debounce curto para evitar chamadas duplas
+            if (this.searchTimeout) clearTimeout(this.searchTimeout);
+            this.searchTimeout = setTimeout(() => {
+                this.loadReportData(mes, ano);
+            }, 80);
+        }
+    }
+
+    populateSlider() {
+          const slider = document.getElementById('monthSlider');
+        if (!slider) return;
+
+        // Remove elementos antigos para evitar duplicação de listeners
+        slider.innerHTML = '';
 
         this.monthsData.forEach((name, index) => {
             const slide = document.createElement('div');
@@ -314,65 +344,80 @@ populateSlider() {
                 <span class="slide-year">${this.state.selectedYear}</span>
             `;
 
-            // EVENTO DE CLIQUE (A Mágica do Toque)
+            // marca como ativo se corresponde ao mês/ano carregado
+            if (this.currentLoadedMonth === (index + 1) && this.currentLoadedYear === this.state.selectedYear) {
+                slide.classList.add('active');
+            }
+
+            // EVENTO DE CLIQUE (simples, sem observer)
             slide.addEventListener('click', () => {
                 // 1. Visual imediato (UX rápida)
-                document.querySelectorAll('.month-slide').forEach(s => s.classList.remove('active'));
+                slider.querySelectorAll('.month-slide').forEach(s => s.classList.remove('active'));
                 slide.classList.add('active');
 
-                // 2. Scroll suave para o centro (Isso vai disparar o Observer também)
-                slide.scrollIntoView({ 
-                    behavior: 'smooth', 
-                    inline: 'center', 
-                    block: 'nearest' 
-                });
+                const mes = Number(slide.dataset.monthIndex);
+                const ano = Number(slide.dataset.year);
+
+                // Se já carregamos esse mês+ano, não recarrega (evita chamadas redundantes)
+                if (this.currentLoadedMonth === mes && this.currentLoadedYear === ano) {
+                    slide.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+                    return;
+                }
+
+                // Atualiza estado e carrega dados
+                this.currentLoadedMonth = mes;
+                this.currentLoadedYear = ano;
+
+                // Smooth scroll para o centro (opcional)
+                slide.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+
+                // Debounce simples caso o usuário clique rápido várias vezes
+                if (this.searchTimeout) clearTimeout(this.searchTimeout);
+                this.searchTimeout = setTimeout(() => {
+                    this.loadReportData(mes, ano);
+                }, 150);
             });
 
             slider.appendChild(slide);
         });
     }
 
-initSliderObserver() {
-        const slider = document.getElementById('monthSlider');
-        if (!slider) return;
+      populateYearSelect() {
+        const select = document.getElementById('year-select');
+        if (!select) return;
+        const cur = new Date().getFullYear();
+        const start = cur - 5;
+        const end = cur + 2;
+        select.innerHTML = '';
+        for (let y = start; y <= end; y++) {
+            const opt = document.createElement('option');
+            opt.value = y;
+            opt.text = y;
+            if (y === this.state.selectedYear) opt.selected = true;
+            select.appendChild(opt);
+        }
+    }
 
-        const options = {
-            root: slider,
-            // Mantém a mira laser no centro
-            rootMargin: "0px -50% 0px -50%", 
-            threshold: 0
-        };
+       onYearChanged() {
+        // Atualiza select visual (caso tenha mudado via prev/next)
+        const select = document.getElementById('year-select');
+        if (select) select.value = this.state.selectedYear;
 
-        this.observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const target = entry.target;
-                    
-                    // Atualiza visual
-                    slider.querySelectorAll('.month-slide').forEach(s => s.classList.remove('active'));
-                    target.classList.add('active');
+        // Repopula o slider com o ano selecionado
+        this.populateSlider();
 
-                    const mes = parseInt(target.dataset.monthIndex);
-                    const ano = parseInt(target.dataset.year);
+        // Ajusta mês inicial quando troca de ano:
+        if (this.state.selectedYear === new Date().getFullYear()) {
+            // mantém o mês atual se já for o mesmo ano, senão usa mês corrente
+            this.currentLoadedMonth = this.currentLoadedMonth || (new Date().getMonth() + 1);
+        } else {
+            // para anos passados/futuros, mantém mês selecionado se já existia, senão january
+            this.currentLoadedMonth = this.currentLoadedMonth || 1;
+        }
+        this.currentLoadedYear = this.state.selectedYear;
 
-                    // AQUI ESTÁ A PROTEÇÃO: 
-                    // Se o mês detectado for o mesmo que já carregamos no início, ignora.
-                    if (this.currentLoadedMonth === mes) return;
-
-                    this.currentLoadedMonth = mes;
-                    console.log(`Carregando dados para: ${mes}/${ano}`);
-                    
-                    if (this.searchTimeout) clearTimeout(this.searchTimeout);
-                    this.searchTimeout = setTimeout(() => {
-                        this.loadReportData(mes, ano);
-                    }, 300);
-                }
-            });
-        }, options);
-
-        slider.querySelectorAll('.month-slide').forEach(slide => {
-            this.observer.observe(slide);
-        });
+        // Scroll + load
+        this.scrollToSelectedMonth();
     }
 
     async loadReportData(mes, ano) {
@@ -405,15 +450,14 @@ initSliderObserver() {
         // Formatação de moeda
         const fmt = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         
-        // Dados extraídos da API (assumindo que você integrou a lógica anterior no Expense.js)
-        // Se ainda não integrou no Expense.js, esses campos "analytics" virão undefined, 
-        // então adicionei fallbacks seguros.
         const totalMes = data.monthlyCost || 0;
         const totalItems = data.expenseNum || 0;
         
         // Dados Analíticos (Se disponíveis no Expense.js atualizado)
         const futureDebt = data.analytics?.futureDebt || 0; 
         const dailyAvg = data.analytics?.flow?.dailyAverage || 0;
+        const  daysElapsed = data.analytics?.flow?.daysElapsed || 0;
+        const daysInMonth = data.analytics?.flow?.daysInMonth || 0;
         const topExpense = data.analytics?.flow?.topExpense || { descricao: '-', valor: 0 };
         const categories = data.analytics?.categories || [];
 
@@ -454,7 +498,7 @@ initSliderObserver() {
                                     <span>${fmt(cat.value)}</span>
                                 </div>
                                 <div class="progress-bg">
-                                    <div class="progress-fill" style="width: ${(cat.value / totalMes * 100)}%"></div>
+                                    <div class="progress-fill" style="width: ${(totalMes ? (cat.value / totalMes * 100) : 0)}%"></div>
                                 </div>
                             </div>
                         `).join('')}
@@ -475,13 +519,12 @@ initSliderObserver() {
         container.innerHTML = html;
     }
 
-
-// --- LÓGICA DE DADOS ---
-/**
- * 
- * @param {Number | String} mes 
- * @param {Number | String} ano 
- */
+    // --- LÓGICA DE DADOS ---
+    /**
+     * 
+     * @param {Number | String} mes 
+     * @param {Number | String} ano 
+     */
     async loadExpensesForPeriod(mes, ano) {
         console.log(`Buscando despesas para ${mes}/${ano}`);
         const user = await getCurrentUser();
@@ -495,22 +538,14 @@ initSliderObserver() {
             console.log(`response api `,response);
             alert(`Erro ao consultar`);
            }
-            /*const apiResponse = [
-                {"id":"hZTx7VkRICzjY33iQ9o9","descricao":"Sofá (6/6)","valor":100,"categoria":"Casa","dataCompra":"2025-11-25T00:00:00.000Z","dataVencimento":"2025-11-20T00:00:00.000Z","status":"pendente","dataPagamento":null,"familiaId":{"_firestore":{"projectId":"saint-finance"},"_path":{"segments":["familias","Santos"]},"_converter":{}},"userId":{"_firestore":{"projectId":"saint-finance"},"_path":{"segments":["usuarios","a8sZRxNbF2YjSfNPgB6E"]},"_converter":{}},"tipo_desp":"parcelada","parcelaInfo":{"compraId":"17422894-a077-4d7b-aa5e-d7cbcc102c99","atual":6,"total":"6"}},
-                {"id":"5Pvqj3yw6n3KEyoYuwLl","descricao":"Tapioca rendada (1/2)","valor":6,"categoria":"Alimentação","dataCompra":"2025-11-24T00:00:00.000Z","dataVencimento":"2025-11-26T00:00:00.000Z","status":"pendente","dataPagamento":null,"familiaId":{"_firestore":{"projectId":"saint-finance"},"_path":{"segments":["familias","Santos"]},"_converter":{}},"userId":{"_firestore":{"projectId":"saint-finance"},"_path":{"segments":["usuarios","a8sZRxNbF2YjSfNPgB6E"]},"_converter":{}},"tipo_desp":"parcelada","parcelaInfo":{"compraId":"c07a8262-74b4-4299-97a1-c58a2791b0ce","atual":1,"total":"2"}}
-            ]; */
             renderExpenseList(response, 'expense-page-list');
         } catch (error) {
             console.error(`Erro loadExpensesForPeriod`,error)
         }
-       
-        
- 
- 
     }
 
     // --- LÓGICA DO DATE PICKER ---
-    setupDatePickerEvents() {
+ setupDatePickerEvents() {
         const modal = document.getElementById('date-selector-modal');
         const displayYear = document.getElementById('display-year');
         
@@ -547,7 +582,7 @@ initSliderObserver() {
         });
     }
 
-setupFormEvents() {
+    setupFormEvents() {
         // 1. Garante que o HTML existe antes de buscar
         const overlay = document.getElementById('expense-form-overlay');
         const form = document.getElementById('new-expense-form');
@@ -562,9 +597,6 @@ setupFormEvents() {
         
         // --- EVENTOS DE ABRIR/FECHAR ---
         if (btnOpen) {
-            // Remove listener antigo (se houver) recriando o elemento, 
-            // ou apenas garante que não duplique se a lógica de render estiver correta.
-            // Como seu render() limpa tudo, apenas adicionar o listener é seguro.
             btnOpen.onclick = () => {
                 overlay.classList.add('active');
                 
@@ -601,8 +633,7 @@ setupFormEvents() {
         };
 
         // --- TOGGLE TIPO (PARCELADO / ÚNICO) ---
-        // Ajustei para procurar tanto .segment-option quanto chips, por segurança
-          const inputInstallments = document.getElementById('input-installments');
+        const inputInstallments = document.getElementById('input-installments');
         const installmentsContainer = document.getElementById('installments-container');
         const opts = document.querySelectorAll('.segment-option');
 
@@ -633,7 +664,7 @@ setupFormEvents() {
         });
     }
 
-    async handleFormSubmit(e) {
+  async handleFormSubmit(e) {
         e.preventDefault();
         
         const rawValue = document.getElementById('input-amount').value.replace(',', '.');
@@ -662,8 +693,6 @@ setupFormEvents() {
             numeroParcelas: this.formState.tipo === 'parcelada' ? installments : 1,
         };
    
-          
-
         console.log("Enviando para API:", novaDespesa);
         try {
             const response = await Expense.create(novaDespesa);
@@ -672,16 +701,13 @@ setupFormEvents() {
                 console.log(`resposta da api`,response);
                 return false;
             }
-
                
-               document.getElementById('expense-form-overlay').classList.remove('active');
+            document.getElementById('expense-form-overlay').classList.remove('active');
 
         } catch (error) {
             alert(`Erro ao tentar criar despesa`);
             console.error(error);
             throw new Error("API retornou um erro", error);
-            
         }
-      
     }
 }

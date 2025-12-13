@@ -18,7 +18,7 @@ export function createExpenseCard(expense) {
         : '';
 
     // Atenção: Convertendo o objeto inteiro para string para passar no onclick (forma simples)
-    // Em produção, ideal seria buscar pelo ID, mas isso agiliza seu desenvolvimento agora.
+    // Em produção, ideal seria buscar pelo ID
     const expenseString = encodeURIComponent(JSON.stringify(expense));
 
     return `

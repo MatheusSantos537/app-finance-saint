@@ -77,7 +77,7 @@ export class Expense{
         // --- ATUALIZAÇÃO INTELIGENTE DO CACHE ---
         try {
            
-            const dataString = despesaCriada.dataCompra || params.dt_compra;
+            const dataString = despesaCriada.dataVencimento;
             
             const dataRef = new Date(dataString); 
             
@@ -109,7 +109,7 @@ export class Expense{
         return despesaCriada;
     }
 
-   static getByRangeAndFamily = async (params) => {
+   static getByRangeAndFamily =  async (params) => {
         const { familia_id, mes, ano } = params;
         const cacheKey = this._getCacheKey(familia_id, mes, ano);
 
@@ -137,6 +137,7 @@ export class Expense{
 
     static getExpenseValues = async (params) => {
             try {
+                const {  mes, ano } = params;
                 // 1. Busca os dados (Local -> API)
                 const data = await this.getByRangeAndFamily(params);
                 
@@ -148,10 +149,10 @@ export class Expense{
                 const expenseNum = data.length;
 
                 // 3. Executa as novas análises
-                // Isso evita que o Front-end tenha que fazer loops pesados
+                //  evita que o Front-end tenha que fazer loops pesados
                 const categoryData = this._analyzeCategories(data);
                 const familyData = this._analyzeFamilySharing(data);
-                const timeData = this._analyzeTimeFlow(data, monthlyCost);
+                const timeData = this._analyzeTimeFlow(data, monthlyCost,mes,ano);
                 const futureDebt = this._analyzeFutureDebt(data);
 
                 return {
@@ -229,28 +230,43 @@ export class Expense{
     /**
      * Analisa o fluxo temporal e projeção diária
      */
-    static _analyzeTimeFlow(data, totalMonthValue) {
-        const today = new Date();
-        const currentDay = today.getDate();
-        
-        // Verifica se os dados são do mês corrente para fazer projeção
-        // Se for mês passado, a média é pelo total de dias do mês
-        // Simplificação: assumindo análise do mês atual para projeção
-        
-        const dailyAverage = currentDay > 0 ? (totalMonthValue / currentDay) : 0;
-        const projectedTotal = dailyAverage * 30; // Projeção simples para 30 dias
+static _analyzeTimeFlow(data, totalMonthValue, mes, ano) {
+    const today = new Date();
 
-        // Top Expense (Maior despesa única)
-        const topExpense = data.reduce((prev, current) => {
-            return (prev.valor > current.valor) ? prev : current;
-        }, { valor: 0, descricao: "" });
+    const isCurrentMonth =
+        today.getFullYear() === ano &&
+        today.getMonth() + 1 === mes;
 
-        return {
-            dailyAverage: dailyAverage,
-            projectedTotal: projectedTotal,
-            topExpense: topExpense
-        };
-    }
+    const daysInMonth = new Date(ano, mes, 0).getDate();
+
+    // Se for mês atual → dias já passados
+    const daysElapsed = isCurrentMonth
+        ? today.getDate()
+        : daysInMonth;
+
+    const dailyAverage = daysElapsed > 0
+        ? totalMonthValue / daysElapsed
+        : 0;
+
+    const projectedTotal = isCurrentMonth
+        ? dailyAverage * daysInMonth
+        : totalMonthValue;
+
+    // Maior despesa única
+    const topExpense = data.reduce((prev, current) => {
+        return (current.valor > prev.valor) ? current : prev;
+    }, { valor: 0, descricao: "" });
+
+    return {
+        dailyAverage,
+        projectedTotal,
+        daysElapsed,
+        daysInMonth,
+        topExpense
+    };
+    
+ 
+}
 
     /**
      * Calcula a "Bola de Neve" (Dívida futura baseada em parcelas restantes)
