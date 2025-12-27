@@ -1,15 +1,20 @@
  
 import { Preferences } from "@capacitor/preferences";
 import { refreshAccessToken } from "./Login.js";
- 
+import { Loader } from "../utils/loader.js";
+const load = new Loader();
 export const API_URL = 'http://localhost:3000/api';
+// export const API_URL = 'https://finance-saint.onrender.com/api';
 /**
  * authFetch 
  * 
  */
 
 export async function authFetch(endpoint, options = {}) {
-    // 1. Configura os Headers padrão
+    
+    try {
+        load.show();
+          // 1. Configura os Headers padrão
     let token = await Preferences.get({key:'accessToken'});
     
     
@@ -42,6 +47,13 @@ export async function authFetch(endpoint, options = {}) {
         }
     }
 
-    return response;
+        return response;
+        
+    } catch (error) {
+        console.error(error);
+    } finally{
+        load.hide();
+    }
+   
 }
  

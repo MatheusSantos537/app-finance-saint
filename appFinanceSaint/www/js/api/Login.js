@@ -1,6 +1,8 @@
 import { Preferences } from '@capacitor/preferences';
 
-import { authFetch, API_URL } from "./config.js";
+import {  API_URL } from "./config.js";
+import { Loader } from "../utils/loader.js";
+const load = new Loader();
 // Configuração
 
 let userDt = async () => await Preferences.get({key:`userData`});
@@ -17,6 +19,7 @@ export async function getCurrentUser() {
  */
 export async function login(email, senha) {
     try {
+        load.show();
         const response = await fetch(`${API_URL}/users/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -59,13 +62,15 @@ export async function login(email, senha) {
     } catch (error) {
         console.error('Erro no login:', error);
         throw error;
+    } finally {
+        load.hide();
     }
 }
 
 /**
  * Função interna para tentar renovar o token
  */
-// Login.js - Correção
+
 export async function refreshAccessToken() {
 
     let refreshToken = await Preferences.get({key:`refreshToken`});
@@ -78,6 +83,7 @@ export async function refreshAccessToken() {
     }
 
     try {
+        load.show();
         const response = await fetch(`${API_URL}/users/refresh-token`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -106,6 +112,8 @@ export async function refreshAccessToken() {
         console.error(`REFRESH TOKEN ERROR`, error);
         logout();
         return null;
+    }   finally {
+        load.hide();
     }
 }
 /**
@@ -113,6 +121,8 @@ export async function refreshAccessToken() {
  */
 export async function logout() {
     //localStorage.clear();
+    try {
+        load.show()
         let refreshToken = await Preferences.get({key:`refreshToken`});
         if(!refreshToken)return console.log(`token refresh null`)
 
@@ -121,7 +131,6 @@ export async function logout() {
        await Preferences.remove({ key: 'userData' });
         
 
-        try {
         const response = await fetch(`${API_URL}/users/logout`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -149,6 +158,8 @@ export async function logout() {
         console.error(`logout TOKEN`,error)
         
         return null;
+    } finally {
+        load.hide();
     }
 
     

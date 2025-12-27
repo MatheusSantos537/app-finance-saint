@@ -279,11 +279,11 @@ static _analyzeTimeFlow(data, totalMonthValue, mes, ano) {
             if (item.tipo_desp === "parcelada" && item.parcelaInfo) {
                 const current = Number(item.parcelaInfo.atual);
                 const total = Number(item.parcelaInfo.total);
-                
+
                 if (!isNaN(current) && !isNaN(total) && total >= current) {
                     const remainingInstallments = total - current;
                     const debtValue = item.valor * remainingInstallments;
-                    totalRemainingDebt = secureSum(totalRemainingDebt, debtValue);
+                    totalRemainingDebt += secureSum(totalRemainingDebt, debtValue);
                 }
             }
         });
